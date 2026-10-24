@@ -8,7 +8,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 
-// Rutas de la app. Cada pantalla tiene su ruta, titulo e icono para el menu inferior
+// Rutas de la app, cada pantalla tiene su ruta, titulo e icono para el menu inferior (la barrita)
 sealed class Pantalla(val ruta: String, val titulo: String, val icono: ImageVector) {
     object Inicio : Pantalla("inicio", "Inicio", Icons.Filled.Home)
     object Nosotros : Pantalla("nosotros", "Nosotros", Icons.Filled.Info)
@@ -17,7 +17,7 @@ sealed class Pantalla(val ruta: String, val titulo: String, val icono: ImageVect
     object Perfil : Pantalla("perfil", "Perfil", Icons.Filled.Person)
 }
 
-// Pantallas que aparecen en la barra de navegacion inferior
+// Pantallas que aparecen en la barra de navegacion inferoir
 val pantallasMenu = listOf(
     Pantalla.Inicio,
     Pantalla.Nosotros,

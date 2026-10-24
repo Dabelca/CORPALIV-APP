@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.duoc.albalab.ui.theme.AlbaLabTheme
 
+//Pagina pricnipal
 @Composable
 fun PantallaInicio(onQuieroAyudar: () -> Unit, modifier: Modifier = Modifier) {
     Column(

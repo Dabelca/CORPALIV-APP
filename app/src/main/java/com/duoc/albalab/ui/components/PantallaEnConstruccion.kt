@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
-// Pantalla temporal para las secciones que aun no se desarrollan
+// Pantalla temporal para las secciones que aun no se desarrollan, dani esto es como la plantilla para el standby
 @Composable
 fun PantallaEnConstruccion(titulo: String, descripcion: String) {
     Column(
