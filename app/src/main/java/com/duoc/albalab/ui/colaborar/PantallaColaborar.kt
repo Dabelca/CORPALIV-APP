@@ -83,13 +83,14 @@ fun PantallaColaborar(viewModel: ContactoViewModel = viewModel()) {
         Button(
             onClick = { viewModel.validarFormulario() },
             modifier = Modifier.fillMaxWidth()
+
         ) {
             Text("Enviar")
         }
 
         if (estado.enviado) {
             Text(
-                text = "¡Gracias! Te contactaremos pronto.",
+                text = "Gracias por tu interés! Te contactaremos pronto :)",
                 color = MaterialTheme.colorScheme.primary
             )
         }
