@@ -1,15 +1,23 @@
 package com.duoc.albalab.viewmodel
 
+import android.app.Application
 import android.util.Patterns
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.duoc.albalab.data.AppDatabase
+import com.duoc.albalab.model.Contacto
 import com.duoc.albalab.model.ContactoErrores
 import com.duoc.albalab.model.ContactoUiState
+import com.duoc.albalab.repository.ContactoRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 // Logica y validaciones del formulario de contacto (separado de la UI)
-class ContactoViewModel : ViewModel() {
+class ContactoViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository = ContactoRepository(AppDatabase.obtener(application).contactoDao())
 
     private val _estado = MutableStateFlow(ContactoUiState())
     val estado: StateFlow<ContactoUiState> = _estado
@@ -43,5 +51,15 @@ class ContactoViewModel : ViewModel() {
         _estado.update { it.copy(errores = errores, enviado = !hayErrores) }
 
         return !hayErrores
+    }
+
+    // Si el formulario es valido lo guarda en la base de datos
+    fun enviar() {
+        if (validarFormulario()) {
+            val actual = _estado.value
+            viewModelScope.launch {
+                repository.guardar(Contacto(nombre = actual.nombre, correo = actual.correo, mensaje = actual.mensaje))
+            }
+        }
     }
 }
