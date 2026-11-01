@@ -17,11 +17,6 @@ import kotlinx.coroutines.launch
 // logica y validaciones del formulario de contacto
 class ContactoViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = ContactoRepository(AppDatabase.obtener(application).contactoDao())
-
-// logica y validaciones del formulario de contacto
-class ContactoViewModel(application: Application) : AndroidViewModel(application) {
-
     private val repository =
         ContactoRepository(AppDatabase.obtener(application).contactoDao())
 
@@ -117,4 +112,4 @@ class ContactoViewModel(application: Application) : AndroidViewModel(application
             }
         }
     }
-}}
+}
