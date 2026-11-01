@@ -81,7 +81,7 @@ fun PantallaColaborar(viewModel: ContactoViewModel = viewModel()) {
         )
 
         Button(
-            onClick = { viewModel.validarFormulario() },
+            onClick = { viewModel.enviar() },
             modifier = Modifier.fillMaxWidth()
 
         ) {
