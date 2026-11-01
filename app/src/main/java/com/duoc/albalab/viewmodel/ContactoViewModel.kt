@@ -14,52 +14,107 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-// Logica y validaciones del formulario de contacto (separado de la UI)
+// logica y validaciones del formulario de contacto
 class ContactoViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = ContactoRepository(AppDatabase.obtener(application).contactoDao())
 
+// logica y validaciones del formulario de contacto
+class ContactoViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository =
+        ContactoRepository(AppDatabase.obtener(application).contactoDao())
+
     private val _estado = MutableStateFlow(ContactoUiState())
     val estado: StateFlow<ContactoUiState> = _estado
 
-    // Cada cambio actualiza el campo y limpia su error
+    // cada cambio actualiza el campo y limpia su error
     fun onNombreChange(valor: String) {
-        _estado.update { it.copy(nombre = valor, enviado = false, errores = it.errores.copy(nombre = null)) }
+        _estado.update {
+            it.copy(
+                nombre = valor,
+                enviado = false,
+                errores = it.errores.copy(nombre = null)
+            )
+        }
     }
 
     fun onCorreoChange(valor: String) {
-        _estado.update { it.copy(correo = valor, enviado = false, errores = it.errores.copy(correo = null)) }
+        _estado.update {
+            it.copy(
+                correo = valor,
+                enviado = false,
+                errores = it.errores.copy(correo = null)
+            )
+        }
     }
 
     fun onMensajeChange(valor: String) {
-        _estado.update { it.copy(mensaje = valor, enviado = false, errores = it.errores.copy(mensaje = null)) }
+        _estado.update {
+            it.copy(
+                mensaje = valor,
+                enviado = false,
+                errores = it.errores.copy(mensaje = null)
+            )
+        }
     }
 
-    // Valida todos los campos, retorna true si no hay errores
+    // valida todos los campos, retorna true si no hay errores
     fun validarFormulario(): Boolean {
         val actual = _estado.value
+
         val errores = ContactoErrores(
             nombre = if (actual.nombre.isBlank()) "Campo obligatorio" else null,
+
             correo = if (actual.correo.isBlank()) "Campo obligatorio"
-                else if (!Patterns.EMAIL_ADDRESS.matcher(actual.correo).matches()) "Correo inválido"
-                else null,
-            mensaje = if (actual.mensaje.length < 10) "Debe tener al menos 10 caracteres" else null
+            else if (!Patterns.EMAIL_ADDRESS.matcher(actual.correo).matches())
+                "Correo inválido"
+            else null,
+
+            mensaje = if (actual.mensaje.length < 10)
+                "El mensaje debe tener al menos 10 caracteres"
+            else null
         )
 
-        val hayErrores = listOfNotNull(errores.nombre, errores.correo, errores.mensaje).isNotEmpty()
+        val hayErrores = listOfNotNull(
+            errores.nombre,
+            errores.correo,
+            errores.mensaje
+        ).isNotEmpty()
 
-        _estado.update { it.copy(errores = errores, enviado = !hayErrores) }
+        _estado.update {
+            it.copy(
+                errores = errores,
+                enviado = !hayErrores
+            )
+        }
 
         return !hayErrores
     }
 
-    // Si el formulario es valido lo guarda en la base de datos
+    // si el formulario es valido lo guarda en la bd
     fun enviar() {
+        val actual = _estado.value
+
         if (validarFormulario()) {
-            val actual = _estado.value
             viewModelScope.launch {
-                repository.guardar(Contacto(nombre = actual.nombre, correo = actual.correo, mensaje = actual.mensaje))
+                repository.guardar(
+                    Contacto(
+                        nombre = actual.nombre,
+                        correo = actual.correo,
+                        mensaje = actual.mensaje
+                    )
+                )
+
+                // lmpia los campos despues de guardar
+                _estado.update {
+                    it.copy(
+                        nombre = "",
+                        correo = "",
+                        mensaje = ""
+                    )
+                }
             }
         }
     }
-}
+}}
