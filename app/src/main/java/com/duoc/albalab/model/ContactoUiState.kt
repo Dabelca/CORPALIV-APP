@@ -1,6 +1,6 @@
 package com.duoc.albalab.model
 
-// Estado del formulario de contacto de "Quiero ayudar"
+// estado del form de contacto
 data class ContactoUiState(
     val nombre: String = "",
     val correo: String = "",
@@ -9,7 +9,7 @@ data class ContactoUiState(
     val errores: ContactoErrores = ContactoErrores()
 )
 
-// Errores de cada campo, null = sin error
+// rrrores de cada campo, null = sin error
 data class ContactoErrores(
     val nombre: String? = null,
     val correo: String? = null,
