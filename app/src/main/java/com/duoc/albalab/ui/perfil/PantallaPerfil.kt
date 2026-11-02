@@ -1,5 +1,6 @@
 package com.duoc.albalab.ui.perfil
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,14 +23,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.duoc.albalab.model.Contacto
 import com.duoc.albalab.viewmodel.LoginViewModel
 
-// login de socios
+// login y registro de socios
 @Composable
 fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
     val estado by viewModel.estado.collectAsState()
@@ -74,6 +77,71 @@ fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
                     }
                 }
             }
+        } else if (estado.registrando) {
+            Text(
+                text = "Crear cuenta",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            // campo nombre
+            OutlinedTextField(
+                value = estado.nombre,
+                onValueChange = viewModel::onNombreChange,
+                label = { Text("Nombre") },
+                isError = estado.errores.nombre != null,
+                supportingText = {
+                    estado.errores.nombre?.let { MensajeError(it) }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // campo correo
+            OutlinedTextField(
+                value = estado.correo,
+                onValueChange = viewModel::onCorreoChange,
+                label = { Text("Correo electrónico") },
+                isError = estado.errores.correo != null,
+                supportingText = {
+                    estado.errores.correo?.let { MensajeError(it) }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // campo clave
+            OutlinedTextField(
+                value = estado.clave,
+                onValueChange = viewModel::onClaveChange,
+                label = { Text("Contraseña") },
+                visualTransformation = PasswordVisualTransformation(),
+                isError = estado.errores.clave != null,
+                supportingText = {
+                    estado.errores.clave?.let { MensajeError(it) }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // campo confirmar clave
+            OutlinedTextField(
+                value = estado.confirmarClave,
+                onValueChange = viewModel::onConfirmarClaveChange,
+                label = { Text("Confirmar contraseña") },
+                visualTransformation = PasswordVisualTransformation(),
+                isError = estado.errores.confirmarClave != null,
+                supportingText = {
+                    estado.errores.confirmarClave?.let { MensajeError(it) }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Button(
+                onClick = { viewModel.registrar() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Registrarme")
+            }
+
+            EnlacePequeno("¿Ya tienes cuenta? Inicia sesión") { viewModel.cambiarFormulario() }
         } else {
             Text(
                 text = "Iniciar sesión",
@@ -112,6 +180,8 @@ fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
             ) {
                 Text("Ingresar")
             }
+
+            EnlacePequeno("¿No tienes cuenta? Regístrate") { viewModel.cambiarFormulario() }
         }
     }
 }
@@ -134,6 +204,22 @@ private fun TarjetaSolicitud(solicitud: Contacto) {
             }
             Text(text = solicitud.mensaje)
         }
+    }
+}
+
+// texto chico centrado que se puede tocar, para cambiar entre login y registro
+@Composable
+private fun EnlacePequeno(texto: String, onClick: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = texto,
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.clickable { onClick() }
+        )
     }
 }
 

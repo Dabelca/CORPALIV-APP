@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.duoc.albalab.data.AppDatabase
 import com.duoc.albalab.model.LoginErrores
 import com.duoc.albalab.model.LoginUiState
+import com.duoc.albalab.model.Socio
 import com.duoc.albalab.repository.ContactoRepository
 import com.duoc.albalab.repository.SocioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +33,21 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onClaveChange(valor: String) {
         _estado.update { it.copy(clave = valor, errores = it.errores.copy(clave = null)) }
+    }
+
+    fun onNombreChange(valor: String) {
+        _estado.update { it.copy(nombre = valor, errores = it.errores.copy(nombre = null)) }
+    }
+
+    fun onConfirmarClaveChange(valor: String) {
+        _estado.update {
+            it.copy(confirmarClave = valor, errores = it.errores.copy(confirmarClave = null))
+        }
+    }
+
+    // cambia entre el form de login y el de registro, con los campos vacios
+    fun cambiarFormulario() {
+        _estado.update { LoginUiState(registrando = !it.registrando) }
     }
 
     // valida los campos, retorna true si no hay errores
@@ -67,6 +83,42 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                     _estado.update { it.copy(nombreSocio = socio.nombre) }
                     cargarSolicitudes()
                 }
+            }
+        }
+    }
+
+    // valida los campos del registro, retorna true si no hay errores
+    fun validarRegistro(): Boolean {
+        val actual = _estado.value
+
+        val errores = LoginErrores(
+            nombre = if (actual.nombre.isBlank()) "El nombre es obligatorio" else null,
+            correo = if (!actual.correo.contains("@")) "Correo inválido" else null,
+            clave = if (actual.clave.length < 6) "Debe tener al menos 6 caracteres" else null,
+            confirmarClave = if (actual.confirmarClave != actual.clave) "Las contraseñas no coinciden" else null
+        )
+
+        val hayErrores = listOfNotNull(
+            errores.nombre,
+            errores.correo,
+            errores.clave,
+            errores.confirmarClave
+        ).isNotEmpty()
+
+        _estado.update { it.copy(errores = errores) }
+
+        return !hayErrores
+    }
+
+    // si el registro es valido guarda el socio y vuelve al login con su correo
+    fun registrar() {
+        if (validarRegistro()) {
+            val actual = _estado.value
+            viewModelScope.launch {
+                repository.insertar(
+                    Socio(nombre = actual.nombre, correo = actual.correo, clave = actual.clave)
+                )
+                _estado.update { LoginUiState(correo = actual.correo) }
             }
         }
     }

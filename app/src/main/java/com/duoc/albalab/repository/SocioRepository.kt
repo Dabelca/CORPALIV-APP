@@ -9,4 +9,8 @@ class SocioRepository(private val dao: SocioDao) {
     suspend fun buscar(correo: String, clave: String): Socio? {
         return dao.buscar(correo, clave)
     }
+
+    suspend fun insertar(socio: Socio) {
+        dao.insertar(socio)
+    }
 }
