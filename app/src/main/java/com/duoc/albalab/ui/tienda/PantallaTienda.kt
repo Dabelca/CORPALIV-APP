@@ -35,15 +35,38 @@ import java.text.NumberFormat
 import java.util.Locale
 import android.content.Context
 import android.content.Intent
+import android.speech.tts.TextToSpeech
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.runtime.setValue
 
 
 //Catalogo de productos con filtro y favoritos
 @Composable
 fun PantallaTienda(viewModel: TiendaViewModel = viewModel()) {
     val estado by viewModel.estado.collectAsState()
+    val context = LocalContext.current
+    var lector by remember { mutableStateOf<TextToSpeech?>(null) }
+    var leyendoId by remember { mutableStateOf<Int?>(null) }
+
+    DisposableEffect(Unit) {
+        var motor: TextToSpeech? = null
+        motor = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                motor?.language = Locale.forLanguageTag("es-CL")
+            }
+        }
+        lector = motor
+        onDispose {
+            motor?.stop()
+            motor?.shutdown()
+        }
+
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -67,8 +90,19 @@ fun PantallaTienda(viewModel: TiendaViewModel = viewModel()) {
                 }
             }
         }
-        items(estado.productos, key = {it.id}) {producto ->
-            TarjetaProducto(producto)
+        items(estado.productos, key = { it.id }) { producto ->
+            TarjetaProducto(
+                producto = producto,
+                onEscuchar = {
+                    if (leyendoId == it.id && lector?.isSpeaking == true) {
+                        lector?.stop()
+                        leyendoId = null
+                    } else {
+                        leerProducto(lector, it)
+                        leyendoId = it.id
+                    }
+                }
+            )
         }
 
     }
@@ -76,7 +110,7 @@ fun PantallaTienda(viewModel: TiendaViewModel = viewModel()) {
 }
 
 @Composable
-private fun TarjetaProducto(producto: Producto){
+private fun TarjetaProducto(producto: Producto, onEscuchar: (Producto) -> Unit){
     val context = LocalContext.current
     Card(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -112,12 +146,21 @@ private fun TarjetaProducto(producto: Producto){
                     color = MaterialTheme.colorScheme.primary
                 )
             }
-            IconButton(onClick = { compartirProducto(context, producto) }) {
-                Icon(
+            Column{
+                IconButton(onClick = {onEscuchar(producto)}) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.VolumeUp,
+                        contentDescription = "Escuchar ${producto.nombre}",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                IconButton(onClick = { compartirProducto(context, producto) }) {
+                 Icon(
                     imageVector = Icons.Filled.Share,
                     contentDescription = "Compartir ${producto.nombre}",
                     tint = MaterialTheme.colorScheme.primary
-                )
+                    )
+                }
             }
         }
     }
@@ -136,4 +179,9 @@ private fun compartirProducto(context: Context, producto: Producto) {
     }
     context.startActivity(Intent.createChooser(intent,"Compartir producto"))
 
+}
+
+private fun leerProducto(lector: TextToSpeech?, producto: Producto) {
+    val texto = "${producto.nombre}. ${producto.descripcion}. Precio: ${producto.precio} pesos."
+    lector?.speak(texto, TextToSpeech.QUEUE_FLUSH, null, "producto_${producto.id}")
 }
