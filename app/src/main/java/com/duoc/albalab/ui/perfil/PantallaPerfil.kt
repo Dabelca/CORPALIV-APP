@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +22,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -59,6 +62,8 @@ fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
     val context = LocalContext.current
     // uri donde la camara va a guardar la foto
     var uriCamara by remember { mutableStateOf<Uri?>(null) }
+    // true = muestra el menu de la foto
+    var menuFoto by remember { mutableStateOf(false) }
 
     // abre la galeria, si se cancela no hace nada
     val galeria = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -88,25 +93,40 @@ fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
     ) {
         // si ya inicio sesion muestra el saludo y sus solicitudes
         if (estado.nombreSocio != null) {
-            Text(
-                text = "Hola, ${estado.nombreSocio}",
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            // foto de perfil desde la galeria o la camara
-            Column(
+            // saludo a la izquierda y foto a la derecha
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                ImagenInteligente(estado.fotoPerfil)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = { galeria.launch("image/*") }) {
-                        Text("Galería")
-                    }
-                    Button(onClick = { permisoCamara.launch(Manifest.permission.CAMERA) }) {
-                        Text("Cámara")
+                Text(
+                    text = "Hola, ${estado.nombreSocio}",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                // al tocar la foto se abre el menu con galeria y camara
+                Box(modifier = Modifier.clickable { menuFoto = true }) {
+                    ImagenInteligente(estado.fotoPerfil)
+
+                    DropdownMenu(
+                        expanded = menuFoto,
+                        onDismissRequest = { menuFoto = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Galería") },
+                            onClick = {
+                                menuFoto = false
+                                galeria.launch("image/*")
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Cámara") },
+                            onClick = {
+                                menuFoto = false
+                                permisoCamara.launch(Manifest.permission.CAMERA)
+                            }
+                        )
                     }
                 }
             }
