@@ -12,6 +12,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -30,6 +33,11 @@ import com.duoc.albalab.model.Producto
 import com.duoc.albalab.viewmodel.TiendaViewModel
 import java.text.NumberFormat
 import java.util.Locale
+import android.content.Context
+import android.content.Intent
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+
 
 
 //Catalogo de productos con filtro y favoritos
@@ -69,6 +77,7 @@ fun PantallaTienda(viewModel: TiendaViewModel = viewModel()) {
 
 @Composable
 private fun TarjetaProducto(producto: Producto){
+    val context = LocalContext.current
     Card(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -103,6 +112,13 @@ private fun TarjetaProducto(producto: Producto){
                     color = MaterialTheme.colorScheme.primary
                 )
             }
+            IconButton(onClick = { compartirProducto(context, producto) }) {
+                Icon(
+                    imageVector = Icons.Filled.Share,
+                    contentDescription = "Compartir ${producto.nombre}",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }
@@ -110,3 +126,14 @@ private fun TarjetaProducto(producto: Producto){
 
 private fun formatoPrecio(precio: Int): String =
     "$" + NumberFormat.getNumberInstance(Locale.forLanguageTag("es-CL")).format(precio)
+
+
+private fun compartirProducto(context: Context, producto: Producto) {
+    val texto = "Mira este producto de Alba Lab: ${producto.nombre} a ${formatoPrecio(producto.precio)}."
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, texto)
+    }
+    context.startActivity(Intent.createChooser(intent,"Compartir producto"))
+
+}
