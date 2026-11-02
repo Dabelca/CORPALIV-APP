@@ -10,6 +10,7 @@ import com.duoc.albalab.model.Contacto
 import com.duoc.albalab.model.ContactoErrores
 import com.duoc.albalab.model.ContactoUiState
 import com.duoc.albalab.repository.ContactoRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -110,6 +111,10 @@ class ContactoViewModel(application: Application) : AndroidViewModel(application
 
         if (validarFormulario()) {
             viewModelScope.launch {
+                // muestra el loader y simula demora
+                _estado.update { it.copy(guardando = true) }
+                delay(1500)
+
                 repository.guardar(
                     Contacto(
                         nombre = actual.nombre,
@@ -127,7 +132,8 @@ class ContactoViewModel(application: Application) : AndroidViewModel(application
                         correo = "",
                         mensaje = "",
                         tipoColaborador = "Persona",
-                        formaColaboracion = ""
+                        formaColaboracion = "",
+                        guardando = false
                     )
                 }
             }

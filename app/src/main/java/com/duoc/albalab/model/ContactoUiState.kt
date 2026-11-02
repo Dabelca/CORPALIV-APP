@@ -8,6 +8,7 @@ data class ContactoUiState(
     val tipoColaborador: String = "Persona",
     val formaColaboracion: String = "",
     val enviado: Boolean = false,
+    val guardando: Boolean = false,
     val errores: ContactoErrores = ContactoErrores()
 )
 
