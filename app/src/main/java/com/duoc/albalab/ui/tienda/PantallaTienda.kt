@@ -81,7 +81,7 @@ fun PantallaTienda(viewModel: TiendaViewModel = viewModel()) {
     ) {
         item {
             Text(
-                text = "Productos hechos por jovenes y adultos de Alba Lab",
+                text = "Productos hechos por jóvenes y adultos de Alba Lab",
                 style = MaterialTheme.typography.titleMedium
             )
         }
