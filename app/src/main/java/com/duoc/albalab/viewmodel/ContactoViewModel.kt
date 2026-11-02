@@ -1,3 +1,4 @@
+
 package com.duoc.albalab.viewmodel
 
 import android.app.Application
@@ -54,6 +55,22 @@ class ContactoViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    // actualiza el tipo de colaborador seleccionado
+    fun onTipoColaboradorChange(valor: String) {
+        _estado.update {
+            it.copy(
+                tipoColaborador = valor,
+                enviado = false
+            )
+        }
+    }
+
+    fun onFormaColaboracionChange(valor: String) {
+        _estado.update {
+            it.copy(formaColaboracion = valor, enviado = false)
+        }
+    }
+
     // valida todos los campos, retorna true si no hay errores
     fun validarFormulario(): Boolean {
         val actual = _estado.value
@@ -97,16 +114,20 @@ class ContactoViewModel(application: Application) : AndroidViewModel(application
                     Contacto(
                         nombre = actual.nombre,
                         correo = actual.correo,
-                        mensaje = actual.mensaje
+                        mensaje = actual.mensaje,
+                        tipoColaborador = actual.tipoColaborador,
+                        formaColaboracion = actual.formaColaboracion
                     )
                 )
 
-                // lmpia los campos despues de guardar
+                // limpia los campos despues de guardar
                 _estado.update {
                     it.copy(
                         nombre = "",
                         correo = "",
-                        mensaje = ""
+                        mensaje = "",
+                        tipoColaborador = "Persona",
+                        formaColaboracion = ""
                     )
                 }
             }

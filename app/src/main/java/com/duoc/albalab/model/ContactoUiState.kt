@@ -5,11 +5,13 @@ data class ContactoUiState(
     val nombre: String = "",
     val correo: String = "",
     val mensaje: String = "",
+    val tipoColaborador: String = "Persona",
+    val formaColaboracion: String = "",
     val enviado: Boolean = false,
     val errores: ContactoErrores = ContactoErrores()
 )
 
-// rrrores de cada campo, null = sin error
+// errores de cada campo, null = sin error
 data class ContactoErrores(
     val nombre: String? = null,
     val correo: String? = null,

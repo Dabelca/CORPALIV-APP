@@ -15,18 +15,25 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.duoc.albalab.viewmodel.ContactoViewModel
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.ui.window.PopupProperties
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.foundation.layout.Box
 
 // Donaciones y formulario de contacto para "Quiero ayudar"
 @Composable
@@ -49,31 +56,33 @@ fun PantallaColaborar(viewModel: ContactoViewModel = viewModel()) {
         )
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = { tipoDonacion = if (tipoDonacion == "personas") "" else "personas"},
-                modifier = Modifier.weight(1f)) {Text("Personas")
+            Button(onClick = { tipoDonacion = if (tipoDonacion == "personas") "" else "personas" },
+                modifier = Modifier.weight(1f)) {
+                Text("Personas")
             }
-            Button(onClick = { tipoDonacion = if (tipoDonacion == "empresas") "" else "empresas"},
-                modifier = Modifier.weight(1f)) {Text("Empresas")
+            Button(onClick = { tipoDonacion = if (tipoDonacion == "empresas") "" else "empresas" },
+                modifier = Modifier.weight(1f)) {
+                Text("Empresas")
             }
         }
 
         if (tipoDonacion == "personas") {
             Text(
                 "Transferencia bancaria directa\n" +
-                    "Nombre: Corporación de Padres y Amigos por el Limitado Visual\n" +
-                    "Rut: 73.100.200-2\n" +
-                    "Banco de Chile, Cuenta corriente N° 17323468-02\n" +
-                    "Email: administracionyfinanzas@corpaliv.cl"
+                        "Nombre: Corporación de Padres y Amigos por el Limitado Visual\n" +
+                        "Rut: 73.100.200-2\n" +
+                        "Banco de Chile, Cuenta corriente N° 17323468-02\n" +
+                        "Email: administracionyfinanzas@corpaliv.cl"
             )
         }
 
         if (tipoDonacion == "empresas") {
             Text(
                 "¿Cómo formalizar la donación?\n" +
-                    "Como empresa debes conocer los “Mecanismos de donación” que tenemos disponibles en la siguiente sección. (Ley 21.015, Ley 19.855, Ley 21.440 y Ley 3.063)\n\n" +
-                    "Luego debes contactar a Javiera Guzmán j.guzman@corpaliv.cl para solicitar más información.\n\n" +
-                    "Si nos quieres apoyar, contáctanos:\n" +
-                    "j.guzman@corpaliv.cl"
+                        "Como empresa debes conocer los “Mecanismos de donación” que tenemos disponibles en la siguiente sección. (Ley 21.015, Ley 19.855, Ley 21.440 y Ley 3.063)\n\n" +
+                        "Luego debes contactar a Javiera Guzmán j.guzman@corpaliv.cl para solicitar más información.\n\n" +
+                        "Si nos quieres apoyar, contáctanos:\n" +
+                        "j.guzman@corpaliv.cl"
             )
         }
 
@@ -82,6 +91,83 @@ fun PantallaColaborar(viewModel: ContactoViewModel = viewModel()) {
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary
         )
+
+        // tipo de colaborador
+        Text(
+            text = "Tipo de colaborador",
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Row (verticalAlignment = Alignment.CenterVertically
+            ) {
+            RadioButton(
+                selected = estado.tipoColaborador == "Persona",
+                onClick = { viewModel.onTipoColaboradorChange("Persona") }
+            )
+            Text("Persona")
+        }
+        Row(verticalAlignment = Alignment.CenterVertically
+            ){
+            RadioButton(
+                selected = estado.tipoColaborador == "Empresa",
+                onClick = { viewModel.onTipoColaboradorChange("Empresa") }
+            )
+            Text("Empresa")
+        }
+
+
+        // tipo de colaboracion
+        var expandido by remember { mutableStateOf(false) }
+
+        val opcionesColaboracion = listOf(
+            "Donación económica",
+            "Donación de productos o materiales",
+            "Voluntariado",
+            "Alianza con empresas",
+            "Otra forma de colaborar"
+        )
+
+        Text(text = "¿Cómo desea colaborar?")
+
+        Box(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            OutlinedTextField(
+                value = estado.formaColaboracion,
+                onValueChange = {},
+                readOnly = true,
+                placeholder = { Text("Seleccione una opción") },
+                trailingIcon = {
+                    Text(if (expandido) "▲" else "▼")
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Capa transparente para detectar el clic
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable {
+                        expandido = !expandido
+                    }
+            )
+
+            DropdownMenu(
+                expanded = expandido,
+                onDismissRequest = { expandido = false },
+                properties = PopupProperties(focusable = true)
+            ) {
+                opcionesColaboracion.forEach { opcion ->
+                    DropdownMenuItem(
+                        text = { Text(opcion) },
+                        onClick = {
+                            viewModel.onFormaColaboracionChange(opcion)
+                            expandido = false
+                        }
+                    )
+                }
+            }
+        }
 
         // Campo nombre
         OutlinedTextField(
@@ -127,7 +213,6 @@ fun PantallaColaborar(viewModel: ContactoViewModel = viewModel()) {
         Button(
             onClick = { viewModel.enviar() },
             modifier = Modifier.fillMaxWidth()
-
         ) {
             Text("Enviar")
         }
