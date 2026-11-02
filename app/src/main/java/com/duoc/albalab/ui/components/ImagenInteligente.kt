@@ -22,14 +22,14 @@ fun ImagenInteligente(uri: Uri?) {
             contentDescription = "Foto de perfil",
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(120.dp)
+                .size(56.dp)
                 .clip(CircleShape)
         )
     } else {
         Icon(
             imageVector = Icons.Filled.Person,
             contentDescription = "Sin foto de perfil",
-            modifier = Modifier.size(120.dp)
+            modifier = Modifier.size(56.dp)
         )
     }
 }
