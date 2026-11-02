@@ -1,5 +1,8 @@
 package com.duoc.albalab.ui.colaborar
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +15,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -21,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -55,12 +61,24 @@ fun PantallaColaborar(viewModel: ContactoViewModel = viewModel()) {
             color = MaterialTheme.colorScheme.primary
         )
 
+        // el boton seleccionado cambia de color con animacion
+        val colorPersonas by animateColorAsState(
+            targetValue = if (tipoDonacion == "personas") MaterialTheme.colorScheme.primary else Color(0xFFB0BEC5),
+            animationSpec = tween(durationMillis = 500), label = ""
+        )
+        val colorEmpresas by animateColorAsState(
+            targetValue = if (tipoDonacion == "empresas") MaterialTheme.colorScheme.primary else Color(0xFFB0BEC5),
+            animationSpec = tween(durationMillis = 500), label = ""
+        )
+
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Button(onClick = { tipoDonacion = if (tipoDonacion == "personas") "" else "personas" },
+                colors = ButtonDefaults.buttonColors(containerColor = colorPersonas),
                 modifier = Modifier.weight(1f)) {
                 Text("Personas")
             }
             Button(onClick = { tipoDonacion = if (tipoDonacion == "empresas") "" else "empresas" },
+                colors = ButtonDefaults.buttonColors(containerColor = colorEmpresas),
                 modifier = Modifier.weight(1f)) {
                 Text("Empresas")
             }
@@ -119,6 +137,12 @@ fun PantallaColaborar(viewModel: ContactoViewModel = viewModel()) {
         // tipo de colaboracion
         var expandido by remember { mutableStateOf(false) }
 
+        // la flecha cambia de color al abrir la lista
+        val colorFlecha by animateColorAsState(
+            targetValue = if (expandido) MaterialTheme.colorScheme.primary else Color(0xFFB0BEC5),
+            animationSpec = tween(durationMillis = 500), label = ""
+        )
+
         val opcionesColaboracion = listOf(
             "Donación económica",
             "Donación de productos o materiales",
@@ -138,7 +162,7 @@ fun PantallaColaborar(viewModel: ContactoViewModel = viewModel()) {
                 readOnly = true,
                 placeholder = { Text("Seleccione una opción") },
                 trailingIcon = {
-                    Text(if (expandido) "▲" else "▼")
+                    Text(if (expandido) "▲" else "▼", color = colorFlecha)
                 },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -176,8 +200,11 @@ fun PantallaColaborar(viewModel: ContactoViewModel = viewModel()) {
             label = { Text("Nombre") },
             isError = estado.errores.nombre != null,
             trailingIcon = { if (estado.errores.nombre != null) IconoError() },
+            // el error aparece con aniamcion
             supportingText = {
-                estado.errores.nombre?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                AnimatedVisibility(visible = estado.errores.nombre != null) {
+                    Text(estado.errores.nombre ?: "", color = MaterialTheme.colorScheme.error)
+                }
             },
             modifier = Modifier.fillMaxWidth()
         )
@@ -191,7 +218,9 @@ fun PantallaColaborar(viewModel: ContactoViewModel = viewModel()) {
             isError = estado.errores.correo != null,
             trailingIcon = { if (estado.errores.correo != null) IconoError() },
             supportingText = {
-                estado.errores.correo?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                AnimatedVisibility(visible = estado.errores.correo != null) {
+                    Text(estado.errores.correo ?: "", color = MaterialTheme.colorScheme.error)
+                }
             },
             modifier = Modifier.fillMaxWidth()
         )
@@ -205,19 +234,26 @@ fun PantallaColaborar(viewModel: ContactoViewModel = viewModel()) {
             isError = estado.errores.mensaje != null,
             trailingIcon = { if (estado.errores.mensaje != null) IconoError() },
             supportingText = {
-                estado.errores.mensaje?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                AnimatedVisibility(visible = estado.errores.mensaje != null) {
+                    Text(estado.errores.mensaje ?: "", color = MaterialTheme.colorScheme.error)
+                }
             },
             modifier = Modifier.fillMaxWidth()
         )
 
-        Button(
-            onClick = { viewModel.enviar() },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Enviar")
+        // mientars se guarda se muestra el loader en vez del boton
+        if (estado.guardando) {
+            CircularProgressIndicator()
+        } else {
+            Button(
+                onClick = { viewModel.enviar() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Enviar")
+            }
         }
 
-        if (estado.enviado) {
+        if (estado.enviado && !estado.guardando) {
             Text(
                 text = "Gracias por tu interés! Te contactaremos pronto :)",
                 color = MaterialTheme.colorScheme.primary
