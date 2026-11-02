@@ -52,6 +52,7 @@ import androidx.compose.runtime.setValue
 
 
 //Catalogo de productos con filtro, voz y boton de compartir
+@Composable
 fun PantallaTienda(viewModel: TiendaViewModel = viewModel()) {
     val estado by viewModel.estado.collectAsState()
     val context = LocalContext.current
