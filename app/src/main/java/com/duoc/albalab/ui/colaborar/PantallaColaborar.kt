@@ -88,9 +88,9 @@ fun PantallaColaborar(viewModel: ContactoViewModel = viewModel()) {
             Text(
                 "Transferencia bancaria directa\n" +
                         "Nombre: Corporación de Padres y Amigos por el Limitado Visual\n" +
-                        "Rut: 73.100.200-2\n" +
-                        "Banco de Chile, Cuenta corriente N° 17323468-02\n" +
-                        "Email: administracionyfinanzas@corpaliv.cl"
+                        "Rut: 12.345.678-9\n" +
+                        "Banco de Chile, Cuenta corriente N° 00000000-00\n" +
+                        "Email: administracionyfinanzas@fundacion.cl"
             )
         }
 
@@ -98,9 +98,9 @@ fun PantallaColaborar(viewModel: ContactoViewModel = viewModel()) {
             Text(
                 "¿Cómo formalizar la donación?\n" +
                         "Como empresa debes conocer los “Mecanismos de donación” que tenemos disponibles en la siguiente sección. (Ley 21.015, Ley 19.855, Ley 21.440 y Ley 3.063)\n\n" +
-                        "Luego debes contactar a Javiera Guzmán j.guzman@corpaliv.cl para solicitar más información.\n\n" +
+                        "Luego debes contactar a Jane Doe j.doe@fundacion.cl para solicitar más información.\n\n" +
                         "Si nos quieres apoyar, contáctanos:\n" +
-                        "j.guzman@corpaliv.cl"
+                        "j.doe@fundacion.cl"
             )
         }
 
