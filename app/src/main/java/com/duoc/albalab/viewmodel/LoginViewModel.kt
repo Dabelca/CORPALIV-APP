@@ -96,7 +96,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
         val errores = LoginErrores(
             nombre = if (actual.nombre.isBlank()) "El nombre es obligatorio" else null,
-            correo = if (!actual.correo.contains("@")) "Correo inválido" else null,
+            correo = if (!Patterns.EMAIL_ADDRESS.matcher(actual.correo).matches()) "Correo inválido" else null,
             clave = if (actual.clave.length < 6) "Debe tener al menos 6 caracteres" else null,
             confirmarClave = if (actual.confirmarClave != actual.clave) "Las contraseñas no coinciden" else null
         )

@@ -51,7 +51,7 @@ fun PantallaInicio(onQuieroAyudar: () -> Unit, modifier: Modifier = Modifier) {
         // Foto de Alba Lab
         Image(
             painter = painterResource(id = R.drawable.foto_inicio),
-            contentDescription = "Jóvenes y adultos de Alba Lab en su práctica laboral",
+            contentDescription = "Ilustración de un grupo diverso de personas",
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp),
