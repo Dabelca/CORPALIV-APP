@@ -9,4 +9,8 @@ class ContactoRepository(private val dao: ContactoDao) {
     suspend fun guardar(contacto: Contacto) {
         dao.insertar(contacto)
     }
+
+    suspend fun obtenerPorCorreo(correo: String): List<Contacto> {
+        return dao.obtenerPorCorreo(correo)
+    }
 }

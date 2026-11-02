@@ -5,6 +5,7 @@ data class LoginUiState(
     val correo: String = "",
     val clave: String = "",
     val nombreSocio: String? = null, // null = no ha iniciado sesion
+    val solicitudes: List<Contacto> = emptyList(), // solicitudes enviadas por el socio
     val errores: LoginErrores = LoginErrores()
 )
 

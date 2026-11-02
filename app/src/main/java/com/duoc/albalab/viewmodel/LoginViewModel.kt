@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.duoc.albalab.data.AppDatabase
 import com.duoc.albalab.model.LoginErrores
 import com.duoc.albalab.model.LoginUiState
+import com.duoc.albalab.repository.ContactoRepository
 import com.duoc.albalab.repository.SocioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +18,9 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository =
         SocioRepository(AppDatabase.obtener(application).socioDao())
+
+    private val contactoRepository =
+        ContactoRepository(AppDatabase.obtener(application).contactoDao())
 
     private val _estado = MutableStateFlow(LoginUiState())
     val estado: StateFlow<LoginUiState> = _estado
@@ -61,8 +65,25 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                     }
                 } else {
                     _estado.update { it.copy(nombreSocio = socio.nombre) }
+                    cargarSolicitudes()
                 }
             }
         }
+    }
+
+    // busca en la bd las solicitudes enviadas con el correo del socio
+    fun cargarSolicitudes() {
+        val actual = _estado.value
+        if (actual.nombreSocio != null) {
+            viewModelScope.launch {
+                val lista = contactoRepository.obtenerPorCorreo(actual.correo)
+                _estado.update { it.copy(solicitudes = lista) }
+            }
+        }
+    }
+
+    // vuelve al formulario de login vacio
+    fun cerrarSesion() {
+        _estado.update { LoginUiState() }
     }
 }
