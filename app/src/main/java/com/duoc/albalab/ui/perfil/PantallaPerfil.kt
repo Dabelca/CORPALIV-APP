@@ -1,5 +1,10 @@
 package com.duoc.albalab.ui.perfil
 
+import android.Manifest
+import android.content.Context
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,15 +29,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.duoc.albalab.model.Contacto
+import com.duoc.albalab.ui.components.ImagenInteligente
 import com.duoc.albalab.viewmodel.LoginViewModel
+import java.io.File
 
 // login y registro de socios
 @Composable
@@ -42,6 +54,30 @@ fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
     // cada vez que se abre la pantalla recarga las solicitudes
     LaunchedEffect(Unit) {
         viewModel.cargarSolicitudes()
+    }
+
+    val context = LocalContext.current
+    // uri donde la camara va a guardar la foto
+    var uriCamara by remember { mutableStateOf<Uri?>(null) }
+
+    // abre la galeria, si se cancela no hace nada
+    val galeria = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) viewModel.onFotoChange(uri)
+    }
+
+    // abre la camara, si se cancela no hace nada
+    val camara = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { exito ->
+        val uri = uriCamara
+        if (exito && uri != null) viewModel.onFotoChange(uri)
+    }
+
+    // pide el permiso de camara y si lo dan abre la camara
+    val permisoCamara = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { concedido ->
+        if (concedido) {
+            val uri = crearUriFoto(context)
+            uriCamara = uri
+            camara.launch(uri)
+        }
     }
 
     Column(
@@ -57,6 +93,23 @@ fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary
             )
+
+            // foto de perfil desde la galeria o la camara
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ImagenInteligente(estado.fotoPerfil)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = { galeria.launch("image/*") }) {
+                        Text("Galería")
+                    }
+                    Button(onClick = { permisoCamara.launch(Manifest.permission.CAMERA) }) {
+                        Text("Cámara")
+                    }
+                }
+            }
 
             Button(
                 onClick = { viewModel.cerrarSesion() },
@@ -216,6 +269,12 @@ private fun TarjetaSolicitud(solicitud: Contacto) {
             Text(text = solicitud.mensaje)
         }
     }
+}
+
+// crea un archivo temporal para la foto y retorna su uri
+private fun crearUriFoto(context: Context): Uri {
+    val archivo = File(context.cacheDir, "foto_${System.currentTimeMillis()}.jpg")
+    return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", archivo)
 }
 
 // texto chico centrado que se puede tocar, para cambiar entre login y registro
