@@ -1,6 +1,5 @@
 package com.duoc.albalab.ui.inicio
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,17 +12,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.duoc.albalab.ui.theme.AlbaLabTheme
 
+//Pagina pricnipal
 @Composable
-fun PantallaInicio(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-
+fun PantallaInicio(onQuieroAyudar: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -47,9 +44,7 @@ fun PantallaInicio(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = {
-                Toast.makeText(context, "¡Gracias por querer ayudar!", Toast.LENGTH_SHORT).show()
-            },
+            onClick = onQuieroAyudar,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(64.dp)
@@ -63,6 +58,6 @@ fun PantallaInicio(modifier: Modifier = Modifier) {
 @Composable
 fun PantallaInicioPreview() {
     AlbaLabTheme {
-        PantallaInicio()
+        PantallaInicio(onQuieroAyudar = {})
     }
 }
