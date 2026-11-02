@@ -1,6 +1,7 @@
 package com.duoc.albalab.viewmodel
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.duoc.albalab.data.AppDatabase
@@ -136,6 +137,11 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 _estado.update { it.copy(solicitudes = lista) }
             }
         }
+    }
+
+    // guarda la foto que viene de la galeria o la camara
+    fun onFotoChange(uri: Uri) {
+        _estado.update { it.copy(fotoPerfil = uri) }
     }
 
     // vuelve al formulario de login vacio
