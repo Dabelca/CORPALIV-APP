@@ -2,6 +2,7 @@ package com.duoc.albalab.viewmodel
 
 import android.app.Application
 import android.net.Uri
+import android.util.Patterns
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.duoc.albalab.data.AppDatabase
@@ -57,7 +58,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         val actual = _estado.value
 
         val errores = LoginErrores(
-            correo = if (!actual.correo.contains("@")) "Correo inválido" else null,
+            correo = if (!Patterns.EMAIL_ADDRESS.matcher(actual.correo).matches()) "Correo inválido" else null,
             clave = if (actual.clave.length < 6) "Debe tener al menos 6 caracteres" else null
         )
 
