@@ -8,20 +8,25 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.duoc.albalab.model.Contacto
 import com.duoc.albalab.viewmodel.LoginViewModel
 
 // login de socios
@@ -29,19 +34,46 @@ import com.duoc.albalab.viewmodel.LoginViewModel
 fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
     val estado by viewModel.estado.collectAsState()
 
+    // cada vez que se abre la pantalla recarga las solicitudes
+    LaunchedEffect(Unit) {
+        viewModel.cargarSolicitudes()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // si ya inicio sesion muestra el saludo
+        // si ya inicio sesion muestra el saludo y sus solicitudes
         if (estado.nombreSocio != null) {
             Text(
                 text = "Hola, ${estado.nombreSocio}",
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary
             )
+
+            Button(
+                onClick = { viewModel.cerrarSesion() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Cerrar sesión")
+            }
+
+            Text(
+                text = "Mis solicitudes",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            if (estado.solicitudes.isEmpty()) {
+                Text("No has enviado solicitudes")
+            } else {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(estado.solicitudes, key = { it.id }) { solicitud ->
+                        TarjetaSolicitud(solicitud)
+                    }
+                }
+            }
         } else {
             Text(
                 text = "Iniciar sesión",
@@ -80,6 +112,27 @@ fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
             ) {
                 Text("Ingresar")
             }
+        }
+    }
+}
+
+// tarjeta con los datos de una solicitud enviada
+@Composable
+private fun TarjetaSolicitud(solicitud: Contacto) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = solicitud.tipoColaborador,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.secondary
+            )
+            if (solicitud.formaColaboracion.isNotBlank()) {
+                Text(
+                    text = solicitud.formaColaboracion,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+            Text(text = solicitud.mensaje)
         }
     }
 }
