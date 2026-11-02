@@ -36,13 +36,19 @@ import java.util.Locale
 import android.content.Context
 import android.content.Intent
 import android.speech.tts.TextToSpeech
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.setValue
+
 
 
 //Catalogo de productos con filtro y favoritos
@@ -73,42 +79,48 @@ fun PantallaTienda(viewModel: TiendaViewModel = viewModel()) {
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        item{
+        item {
             Text(
-            text = "Productos hechos por jovenes y adultos de Alba Lab",
-            style = MaterialTheme.typography.titleMedium
+                text = "Productos hechos por jovenes y adultos de Alba Lab",
+                style = MaterialTheme.typography.titleMedium
             )
         }
         item {
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)){
-                items(estado.tipos) {tipo ->
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(estado.tipos) { tipo ->
                     FilterChip(
                         selected = estado.tipoSeleccionado == tipo,
-                        onClick = {viewModel.onTipoSeleccionado(tipo)},
+                        onClick = { viewModel.onTipoSeleccionado(tipo) },
                         label = { Text(tipo) }
                     )
                 }
             }
         }
         items(estado.productos, key = { it.id }) { producto ->
-            TarjetaProducto(
-                producto = producto,
-                onEscuchar = {
-                    if (leyendoId == it.id && lector?.isSpeaking == true) {
-                        lector?.stop()
-                        leyendoId = null
-                    } else {
-                        leerProducto(lector, it)
-                        leyendoId = it.id
+            var visible by remember { mutableStateOf(false) }
+            LaunchedEffect(Unit) { visible = true }
+            AnimatedVisibility(
+                visible = visible,
+                enter = fadeIn(animationSpec = tween(400)) +
+                        slideInVertically(animationSpec = tween(400)) { it / 3 },
+                modifier = Modifier.animateItem()
+            ) {
+                TarjetaProducto(
+                    producto = producto,
+                    onEscuchar = {
+                        if (leyendoId == it.id && lector?.isSpeaking == true) {
+                            lector?.stop()
+                            leyendoId = null
+                        } else {
+                            leerProducto(lector, it)
+                            leyendoId = it.id
+                        }
                     }
-                }
-            )
+                )
+            }
         }
-
     }
-
 }
-
 @Composable
 private fun TarjetaProducto(producto: Producto, onEscuchar: (Producto) -> Unit){
     val context = LocalContext.current
