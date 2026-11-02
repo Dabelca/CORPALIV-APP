@@ -49,11 +49,11 @@ fun PantallaColaborar(viewModel: ContactoViewModel = viewModel()) {
         )
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = { tipoDonacion = "personas" }, modifier = Modifier.weight(1f)) {
-                Text("Personas")
+            Button(onClick = { tipoDonacion = if (tipoDonacion == "personas") "" else "personas"},
+                modifier = Modifier.weight(1f)) {Text("Personas")
             }
-            Button(onClick = { tipoDonacion = "empresas" }, modifier = Modifier.weight(1f)) {
-                Text("Empresas")
+            Button(onClick = { tipoDonacion = if (tipoDonacion == "empresas") "" else "empresas"},
+                modifier = Modifier.weight(1f)) {Text("Empresas")
             }
         }
 
