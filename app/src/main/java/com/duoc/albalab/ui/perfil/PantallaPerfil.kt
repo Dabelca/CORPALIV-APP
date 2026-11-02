@@ -1,5 +1,6 @@
 package com.duoc.albalab.ui.perfil
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -139,6 +141,15 @@ fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Registrarme")
+            }
+
+            // mensaje animado cuando se guarda la cuenta
+            AnimatedVisibility(visible = estado.registroExitoso) {
+                Text(
+                    text = "¡Te has registrado con éxito!",
+                    color = Color(0xFF4CAF50),
+                    style = MaterialTheme.typography.bodyLarge
+                )
             }
 
             EnlacePequeno("¿Ya tienes cuenta? Inicia sesión") { viewModel.cambiarFormulario() }

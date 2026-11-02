@@ -7,6 +7,7 @@ data class LoginUiState(
     val clave: String = "",
     val confirmarClave: String = "",
     val registrando: Boolean = false, // true = muestra el form de registro
+    val registroExitoso: Boolean = false, // true = muestra el mensaje de exito
     val nombreSocio: String? = null, // null = no ha iniciado sesion
     val solicitudes: List<Contacto> = emptyList(), // solicitudes enviadas por el socio
     val errores: LoginErrores = LoginErrores()
