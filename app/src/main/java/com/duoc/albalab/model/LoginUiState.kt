@@ -1,9 +1,12 @@
 package com.duoc.albalab.model
 
-// estado del form de login
+// estado del form de login y registro
 data class LoginUiState(
+    val nombre: String = "",
     val correo: String = "",
     val clave: String = "",
+    val confirmarClave: String = "",
+    val registrando: Boolean = false, // true = muestra el form de registro
     val nombreSocio: String? = null, // null = no ha iniciado sesion
     val solicitudes: List<Contacto> = emptyList(), // solicitudes enviadas por el socio
     val errores: LoginErrores = LoginErrores()
@@ -11,6 +14,8 @@ data class LoginUiState(
 
 // errores de cada campo, null = sin error
 data class LoginErrores(
+    val nombre: String? = null,
     val correo: String? = null,
-    val clave: String? = null
+    val clave: String? = null,
+    val confirmarClave: String? = null
 )
