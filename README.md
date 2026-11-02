@@ -123,6 +123,7 @@ La app se navega con una **barra inferior** de 5 secciones:
 | **Room** | Base de datos local (socios y solicitudes) |
 | **Coil** | Mostrar la foto de perfil |
 | **Git + GitHub** | Control de versiones |
+| **Jira** | Planificación y distribución de tareas |
 
 ---
 
@@ -189,7 +190,9 @@ Al crearse la base de datos se agrega un socio de prueba:
 ## 🤝 Trabajo colaborativo
 
 - Cada funcionalidad se desarrolla en su propia rama (`feature/...`) y se integra a `main` mediante **Pull Requests**.
-- La planificación y distribución de tareas se realiza en **Trello**.
+- La planificación y distribución de tareas se realiza en **Jira**, con una tarjeta por cada requisito asignada a una integrante.
+
+📋 **Tablero Jira:** [Ver tablero del proyecto](https://guia-appmoviles.atlassian.net/jira/software/projects/KAN/boards/1?filter=&groupBy=none&atlOrigin=eyJpIjoiY2ZhMzMwZTE5OTEyNDIxMGExM2FhYTFkOGI2NzJjMGEiLCJwIjoiaiJ9)
 
 ---
 
