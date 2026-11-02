@@ -9,6 +9,7 @@ import com.duoc.albalab.model.LoginUiState
 import com.duoc.albalab.model.Socio
 import com.duoc.albalab.repository.ContactoRepository
 import com.duoc.albalab.repository.SocioRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -118,6 +119,9 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 repository.insertar(
                     Socio(nombre = actual.nombre, correo = actual.correo, clave = actual.clave)
                 )
+                // muestra el mensaje de exito y espera antes de volver al login
+                _estado.update { it.copy(registroExitoso = true) }
+                delay(timeMillis = 2000)
                 _estado.update { LoginUiState(correo = actual.correo) }
             }
         }
