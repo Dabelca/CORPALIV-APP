@@ -21,6 +21,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            // mide la cobertura de los tests
+            enableUnitTestCoverage = true
+        }
         release {
             optimization {
                 enable = true
