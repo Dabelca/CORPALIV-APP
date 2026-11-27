@@ -6,10 +6,12 @@ import android.util.Patterns
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.duoc.albalab.data.AppDatabase
+import com.duoc.albalab.data.remote.IndicadoresInstance
 import com.duoc.albalab.model.Contacto
 import com.duoc.albalab.model.ContactoErrores
 import com.duoc.albalab.model.ContactoUiState
 import com.duoc.albalab.repository.ContactoRepository
+import com.duoc.albalab.repository.IndicadoresRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +26,23 @@ class ContactoViewModel(application: Application) : AndroidViewModel(application
 
     private val _estado = MutableStateFlow(ContactoUiState())
     val estado: StateFlow<ContactoUiState> = _estado
+
+    private val indicadorRepository = IndicadoresRepository(IndicadoresInstance.api)
+
+    init {
+        cargarIndicadores()
+    }
+
+    fun cargarIndicadores() {
+        viewModelScope.launch {
+            try {
+                val respuesta = indicadorRepository.obtenerIndicadores()
+                _estado.update { it.copy(indicadores = respuesta, errorIndicadores = false) }
+            } catch (e: Exception) {
+                _estado.update { it.copy(errorIndicadores = true) }
+            }
+        }
+    }
 
     // cada cambio actualiza el campo y limpia su error
     fun onNombreChange(valor: String) {

@@ -9,7 +9,10 @@ data class ContactoUiState(
     val formaColaboracion: String = "",
     val enviado: Boolean = false,
     val guardando: Boolean = false,
+    val indicadores: IndicadoresResponse? = null,
+    val errorIndicadores: Boolean = false,
     val errores: ContactoErrores = ContactoErrores()
+
 )
 
 // errores de cada campo, null = sin error
