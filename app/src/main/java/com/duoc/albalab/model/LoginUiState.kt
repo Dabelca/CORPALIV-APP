@@ -11,6 +11,8 @@ data class LoginUiState(
     val registrando: Boolean = false, // true = muestra el form de registro
     val registroExitoso: Boolean = false, // true = muestra el mensaje de exito
     val nombreSocio: String? = null, // null = no ha iniciado sesion
+    val idSocio: Int? = null,
+    val editando: Boolean = false,
     val solicitudes: List<Contacto> = emptyList(), // solicitudes enviadas por el socio
     val fotoPerfil: Uri? = null, // null = sin foto
     val errores: LoginErrores = LoginErrores()
