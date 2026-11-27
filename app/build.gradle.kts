@@ -20,12 +20,23 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // llave para firmar el apk
+    signingConfigs {
+        create("release") {
+            storeFile = file("albalab.jks")
+            storePassword = "albalab2026"
+            keyAlias = "albalab"
+            keyPassword = "albalab2026"
+        }
+    }
+
     buildTypes {
         debug {
             // mide la cobertura de los tests
             enableUnitTestCoverage = true
         }
         release {
+            signingConfig = signingConfigs.getByName("release")
             optimization {
                 enable = true
                 packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
