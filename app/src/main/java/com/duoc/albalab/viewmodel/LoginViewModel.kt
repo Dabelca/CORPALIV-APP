@@ -2,7 +2,6 @@ package com.duoc.albalab.viewmodel
 
 import android.app.Application
 import android.net.Uri
-import android.util.Patterns
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.duoc.albalab.data.AppDatabase
@@ -18,12 +17,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 // logica y validaciones del login
-class LoginViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val repository = SocioRepository()
-
-    private val contactoRepository =
+// los repositorios se reciben para poder usar mocks en los tests
+class LoginViewModel @JvmOverloads constructor(
+    application: Application,
+    private val repository: SocioRepository = SocioRepository(),
+    private val contactoRepository: ContactoRepository =
         ContactoRepository(AppDatabase.obtener(application).contactoDao())
+) : AndroidViewModel(application) {
+
+    private val formatoCorreo = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
 
     private val _estado = MutableStateFlow(LoginUiState())
     val estado: StateFlow<LoginUiState> = _estado
@@ -57,7 +59,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         val actual = _estado.value
 
         val errores = LoginErrores(
-            correo = if (!Patterns.EMAIL_ADDRESS.matcher(actual.correo).matches()) "Correo inválido" else null,
+            correo = if (!formatoCorreo.matches(actual.correo)) "Correo inválido" else null,
             clave = if (actual.clave.length < 6) "Debe tener al menos 6 caracteres" else null
         )
 
@@ -97,7 +99,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
         val errores = LoginErrores(
             nombre = if (actual.nombre.isBlank()) "El nombre es obligatorio" else null,
-            correo = if (!Patterns.EMAIL_ADDRESS.matcher(actual.correo).matches()) "Correo inválido" else null,
+            correo = if (!formatoCorreo.matches(actual.correo)) "Correo inválido" else null,
             clave = if (actual.clave.length < 6) "Debe tener al menos 6 caracteres" else null,
             confirmarClave = if (actual.confirmarClave != actual.clave) "Las contraseñas no coinciden" else null
         )
