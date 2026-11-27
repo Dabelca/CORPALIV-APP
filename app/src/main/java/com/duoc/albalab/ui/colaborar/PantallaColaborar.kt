@@ -3,7 +3,9 @@ package com.duoc.albalab.ui.colaborar
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,30 +18,33 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.duoc.albalab.viewmodel.ContactoViewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
-import androidx.compose.foundation.clickable
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.foundation.layout.Box
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.duoc.albalab.model.ContactoUiState
+import com.duoc.albalab.viewmodel.ContactoViewModel
+import java.text.NumberFormat
+import java.util.Locale
 
 // Donaciones y formulario de contacto para "Quiero ayudar"
 @Composable
@@ -101,6 +106,10 @@ fun PantallaColaborar(viewModel: ContactoViewModel = viewModel()) {
                         "Luego debes contactar a Jane Doe j.doe@fundacion.cl para solicitar más información.\n\n" +
                         "Si nos quieres apoyar, contáctanos:\n" +
                         "j.doe@fundacion.cl"
+            )
+            CuadroIndicadores(
+                estado = estado,
+                onReintentar = { viewModel.cargarIndicadores() }
             )
         }
 
@@ -270,3 +279,35 @@ private fun IconoError() {
         tint = MaterialTheme.colorScheme.error
     )
 }
+
+@Composable
+private fun CuadroIndicadores(estado: ContactoUiState, onReintentar: () -> Unit) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Valores de referencia de hoy",
+                style = MaterialTheme.typography.titleMedium
+            )
+            when {
+                estado.errorIndicadores -> {
+                    Text("No pudimos cargar los valores. Revisa tu conexión.")
+                    TextButton(onClick = onReintentar) { Text("Reintentar") }
+                }
+                estado.indicadores == null -> {
+                    Text("Cargando...")
+                }
+                else -> {
+                    Text("UF: ${formatoPesos(estado.indicadores.uf.valor)}")
+                    Text("UTM: ${formatoPesos(estado.indicadores.utm.valor)}")
+                    Text(
+                        text = "Las leyes de donación calculan sus beneficios en UF y UTM. Fuente: mindicador.cl",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun formatoPesos(valor: Double): String =
+    "$" + NumberFormat.getNumberInstance(Locale.forLanguageTag("es-CL")).format(valor.toLong())
