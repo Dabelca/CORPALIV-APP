@@ -20,8 +20,7 @@ import kotlinx.coroutines.launch
 // logica y validaciones del login
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository =
-        SocioRepository(AppDatabase.obtener(application).socioDao())
+    private val repository = SocioRepository()
 
     private val contactoRepository =
         ContactoRepository(AppDatabase.obtener(application).contactoDao())
@@ -72,19 +71,21 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         return !hayErrores
     }
 
-    // si el formulario es valido busca el socio en la bd
+    // si el formulario es valido busca el socio en el microservicio
     fun iniciarSesion() {
         if (validarFormulario()) {
             val actual = _estado.value
             viewModelScope.launch {
-                val socio = repository.buscar(actual.correo, actual.clave)
-                if (socio == null) {
+                try {
+                    val socio = repository.login(actual.correo, actual.clave)
+                    _estado.update {
+                        it.copy(nombreSocio = socio.nombre, nombre = socio.nombre, idSocio = socio.id)
+                    }
+                    cargarSolicitudes()
+                } catch (e: Exception) {
                     _estado.update {
                         it.copy(errores = it.errores.copy(clave = "Correo o contraseña incorrectos"))
                     }
-                } else {
-                    _estado.update { it.copy(nombreSocio = socio.nombre) }
-                    cargarSolicitudes()
                 }
             }
         }
@@ -118,13 +119,62 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         if (validarRegistro()) {
             val actual = _estado.value
             viewModelScope.launch {
-                repository.insertar(
-                    Socio(nombre = actual.nombre, correo = actual.correo, clave = actual.clave)
-                )
-                // muestra el mensaje de exito y espera antes de volver al login
-                _estado.update { it.copy(registroExitoso = true) }
-                delay(timeMillis = 2000)
-                _estado.update { LoginUiState(correo = actual.correo) }
+                try {
+                    repository.registrar(
+                        Socio(nombre = actual.nombre, correo = actual.correo, clave = actual.clave)
+                    )
+                    // muestra el mensaje de exito y espera antes de volver al login
+                    _estado.update { it.copy(registroExitoso = true) }
+                    delay(timeMillis = 2000)
+                    _estado.update { LoginUiState(correo = actual.correo) }
+                } catch (e: Exception) {
+                    _estado.update {
+                        it.copy(errores = it.errores.copy(correo = "No se pudo registrar"))
+                    }
+                }
+            }
+        }
+    }
+
+    fun editarPerfil() {
+        _estado.update { it.copy(editando = true, confirmarClave = it.clave) }
+    }
+
+    fun cancelarEdicion() {
+        _estado.update { it.copy(editando = false, errores = LoginErrores()) }
+    }
+
+    // guarda los cambios del perfil en el microservicio
+    fun guardarPerfil() {
+        val id = _estado.value.idSocio ?: return
+        if (validarRegistro()) {
+            val actual = _estado.value
+            viewModelScope.launch {
+                try {
+                    val socio = repository.actualizar(
+                        id,
+                        Socio(nombre = actual.nombre, correo = actual.correo, clave = actual.clave)
+                    )
+                    _estado.update { it.copy(nombreSocio = socio.nombre, editando = false) }
+                    cargarSolicitudes()
+                } catch (e: Exception) {
+                    _estado.update {
+                        it.copy(errores = it.errores.copy(correo = "No se pudo guardar"))
+                    }
+                }
+            }
+        }
+    }
+
+    // borra la cuenta y vuelve al login
+    fun eliminarCuenta() {
+        val id = _estado.value.idSocio ?: return
+        viewModelScope.launch {
+            try {
+                repository.eliminar(id)
+                _estado.update { LoginUiState() }
+            } catch (e: Exception) {
+                println("Error al eliminar: ${e.localizedMessage}")
             }
         }
     }

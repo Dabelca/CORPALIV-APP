@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
@@ -28,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -64,6 +66,7 @@ fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
     var uriCamara by remember { mutableStateOf<Uri?>(null) }
     // true = muestra el menu de la foto
     var menuFoto by remember { mutableStateOf(false) }
+    var confirmarEliminar by remember { mutableStateOf(false) }
 
     // abre la galeria, si se cancela no hace nada
     val galeria = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -92,7 +95,7 @@ fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // si ya inicio sesion muestra el saludo y sus solicitudes
-        if (estado.nombreSocio != null) {
+        if (estado.nombreSocio != null && !estado.editando) {
             // saludo a la izquierda y foto a la derecha
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -138,6 +141,42 @@ fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
                 Text("Cerrar sesión")
             }
 
+            Button(
+                onClick = { viewModel.editarPerfil() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Editar perfil")
+            }
+
+            Button(
+                onClick = { confirmarEliminar = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Eliminar cuenta")
+            }
+
+            // pide confirmar antes de borrar la cuenta
+            if (confirmarEliminar) {
+                AlertDialog(
+                    onDismissRequest = { confirmarEliminar = false },
+                    title = { Text("Eliminar cuenta") },
+                    text = { Text("¿Estás seguro de que quieres eliminar tu cuenta?") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            confirmarEliminar = false
+                            viewModel.eliminarCuenta()
+                        }) {
+                            Text("Eliminar")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { confirmarEliminar = false }) {
+                            Text("Cancelar")
+                        }
+                    }
+                )
+            }
+
             Text(
                 text = "Mis solicitudes",
                 style = MaterialTheme.typography.titleMedium
@@ -152,9 +191,9 @@ fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
                     }
                 }
             }
-        } else if (estado.registrando) {
+        } else if (estado.registrando || estado.editando) {
             Text(
-                text = "Crear cuenta",
+                text = if (estado.editando) "Editar perfil" else "Crear cuenta",
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -210,10 +249,12 @@ fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
             )
 
             Button(
-                onClick = { viewModel.registrar() },
+                onClick = {
+                    if (estado.editando) viewModel.guardarPerfil() else viewModel.registrar()
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Registrarme")
+                Text(if (estado.editando) "Guardar" else "Registrarme")
             }
 
             // mensaje animado cuando se guarda la cuenta
@@ -225,7 +266,11 @@ fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
                 )
             }
 
-            EnlacePequeno("¿Ya tienes cuenta? Inicia sesión") { viewModel.cambiarFormulario() }
+            if (estado.editando) {
+                EnlacePequeno("Cancelar") { viewModel.cancelarEdicion() }
+            } else {
+                EnlacePequeno("¿Ya tienes cuenta? Inicia sesión") { viewModel.cambiarFormulario() }
+            }
         } else {
             Text(
                 text = "Iniciar sesión",
