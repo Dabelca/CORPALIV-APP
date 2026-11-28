@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.duoc.albalab.model.Contacto
+import com.duoc.albalab.model.Solicitud
 import com.duoc.albalab.ui.components.ImagenInteligente
 import com.duoc.albalab.viewmodel.LoginViewModel
 import java.io.File
@@ -186,8 +186,12 @@ fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
                 Text("No has enviado solicitudes")
             } else {
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(estado.solicitudes, key = { it.id }) { solicitud ->
-                        TarjetaSolicitud(solicitud)
+                    items(estado.solicitudes, key = { it.id ?: 0L }) { solicitud ->
+                        TarjetaSolicitud(
+                            solicitud = solicitud,
+                            onEditar = { nuevoMensaje -> viewModel.editarSolicitud(solicitud, nuevoMensaje) },
+                            onEliminar = { viewModel.eliminarSolicitud(solicitud)}
+                        )
                     }
                 }
             }
@@ -317,11 +321,19 @@ fun PantallaPerfil(viewModel: LoginViewModel = viewModel()) {
 
 // tarjeta con los datos de una solicitud enviada
 @Composable
-private fun TarjetaSolicitud(solicitud: Contacto) {
+private fun TarjetaSolicitud(
+    solicitud: Solicitud,
+    onEditar: (String) -> Unit,
+    onEliminar: () -> Unit
+) {
+    var editando by remember { mutableStateOf(false) }
+    var confirmarBorrar by remember { mutableStateOf(false) }
+    var nuevoMensaje by remember { mutableStateOf(solicitud.mensaje) }
+
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = solicitud.tipoColaborador,
+                text = "${solicitud.tipoColaborador} · ${solicitud.estado ?: "Enviada"}",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.secondary
             )
@@ -332,9 +344,59 @@ private fun TarjetaSolicitud(solicitud: Contacto) {
                 )
             }
             Text(text = solicitud.mensaje)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                TextButton(onClick = { editando = true }) { Text("Editar") }
+                TextButton(onClick = { confirmarBorrar = true }) { Text("Eliminar") }
+            }
         }
     }
+    if (editando) {
+        AlertDialog(
+            onDismissRequest = { editando = false },
+            title = { Text("Editar mensaje") },
+            text = {
+                OutlinedTextField(
+                    value = nuevoMensaje,
+                    onValueChange = { nuevoMensaje = it },
+                    minLines = 3,
+                    supportingText = {
+                        if (nuevoMensaje.length < 10) Text("Debe tener al menos 10 caracteres")
+                    }
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        editando = false
+                        onEditar(nuevoMensaje)
+                    },
+                    enabled = nuevoMensaje.length >= 10
+                ) { Text("Guardar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { editando = false }) { Text("Cancelar") }
+            }
+        )
+    }
+
+    if (confirmarBorrar) {
+        AlertDialog(
+            onDismissRequest = { confirmarBorrar = false },
+            title = { Text("Eliminar solicitud") },
+            text = { Text("¿Seguro que quieres eliminar esta solicitud?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmarBorrar = false
+                    onEliminar()
+                }) { Text("Eliminar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmarBorrar = false }) { Text("Cancelar") }
+            }
+        )
+    }
 }
+
 
 // crea un archivo temporal para la foto y retorna su uri
 private fun crearUriFoto(context: Context): Uri {

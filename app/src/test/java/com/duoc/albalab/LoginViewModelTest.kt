@@ -1,7 +1,7 @@
 package com.duoc.albalab
 
 import android.net.Uri
-import com.duoc.albalab.model.Contacto
+import com.duoc.albalab.model.Solicitud
 import com.duoc.albalab.model.Socio
 import com.duoc.albalab.repository.ContactoRepository
 import com.duoc.albalab.repository.SocioRepository
@@ -70,7 +70,7 @@ class LoginViewModelTest : StringSpec({
     }
 
     "iniciarSesion() carga las solicitudes del socio" {
-        val solicitud = Contacto(nombre = "Socio Prueba", correo = "socio@prueba.cl", mensaje = "Hola")
+        val solicitud = Solicitud(nombre = "Socio Prueba", correo = "socio@prueba.cl", tipoColaborador = "Persona", formaColaboracion = "Voluntariado", mensaje = "Hola")
         coEvery { contactoRepo.obtenerPorCorreo("socio@prueba.cl") } returns listOf(solicitud)
         iniciarSesion()
         viewModel.estado.value.solicitudes shouldBe listOf(solicitud)

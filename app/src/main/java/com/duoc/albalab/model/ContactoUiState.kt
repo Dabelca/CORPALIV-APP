@@ -11,6 +11,7 @@ data class ContactoUiState(
     val guardando: Boolean = false,
     val indicadores: IndicadoresResponse? = null,
     val errorIndicadores: Boolean = false,
+    val errorEnvio: Boolean = false,
     val errores: ContactoErrores = ContactoErrores()
 
 )

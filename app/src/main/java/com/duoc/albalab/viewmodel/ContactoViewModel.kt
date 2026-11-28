@@ -5,29 +5,26 @@ import android.app.Application
 import android.util.Patterns
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.duoc.albalab.data.AppDatabase
 import com.duoc.albalab.data.remote.IndicadoresInstance
-import com.duoc.albalab.model.Contacto
 import com.duoc.albalab.model.ContactoErrores
 import com.duoc.albalab.model.ContactoUiState
+import com.duoc.albalab.model.Solicitud
 import com.duoc.albalab.repository.ContactoRepository
 import com.duoc.albalab.repository.IndicadoresRepository
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 // logica y validaciones del formulario de contacto
-class ContactoViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val repository =
-        ContactoRepository(AppDatabase.obtener(application).contactoDao())
+class ContactoViewModel @JvmOverloads constructor(
+    application: Application,
+    private val repository: ContactoRepository = ContactoRepository(),
+    private val indicadorRepository: IndicadoresRepository = IndicadoresRepository(IndicadoresInstance.api)
+) : AndroidViewModel(application) {
 
     private val _estado = MutableStateFlow(ContactoUiState())
     val estado: StateFlow<ContactoUiState> = _estado
-
-    private val indicadorRepository = IndicadoresRepository(IndicadoresInstance.api)
 
     init {
         cargarIndicadores()
@@ -126,34 +123,39 @@ class ContactoViewModel(application: Application) : AndroidViewModel(application
 
     // si el formulario es valido lo guarda en la bd
     fun enviar() {
-        val actual = _estado.value
-
         if (validarFormulario()) {
+            val actual = _estado.value
             viewModelScope.launch {
-                // muestra el loader y simula demora
-                _estado.update { it.copy(guardando = true) }
-                delay(1500)
-
-                repository.guardar(
-                    Contacto(
-                        nombre = actual.nombre,
-                        correo = actual.correo,
-                        mensaje = actual.mensaje,
-                        tipoColaborador = actual.tipoColaborador,
-                        formaColaboracion = actual.formaColaboracion
+                _estado.update { it.copy(guardando = true, errorEnvio = false) }
+                try {
+                    repository.crear(
+                        Solicitud(
+                            nombre = actual.nombre,
+                            correo = actual.correo,
+                            tipoColaborador = actual.tipoColaborador,
+                            formaColaboracion = actual.formaColaboracion,
+                            mensaje = actual.mensaje
+                        )
                     )
-                )
-
-                // limpia los campos despues de guardar
-                _estado.update {
-                    it.copy(
-                        nombre = "",
-                        correo = "",
-                        mensaje = "",
-                        tipoColaborador = "Persona",
-                        formaColaboracion = "",
-                        guardando = false
-                    )
+                    _estado.update {
+                        it.copy(
+                            nombre = "",
+                            correo = "",
+                            mensaje = "",
+                            tipoColaborador = "Persona",
+                            formaColaboracion = "",
+                            guardando = false
+                        )
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("Solicitudes", "Error al enviar", e)
+                    _estado.update {
+                        it.copy(
+                            guardando = false,
+                            enviado = false,
+                            errorEnvio = true
+                        )
+                    }
                 }
             }
         }
