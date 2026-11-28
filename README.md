@@ -11,8 +11,9 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin">
   <img src="https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose">
-  <img src="https://img.shields.io/badge/Material%203-757575?style=for-the-badge&logo=materialdesign&logoColor=white" alt="Material 3">
-  <img src="https://img.shields.io/badge/Room-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Room">
+  <img src="https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Spring Boot">
+  <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL">
+  <img src="https://img.shields.io/badge/Retrofit-48B983?style=for-the-badge&logo=square&logoColor=white" alt="Retrofit">
 </p>
 
 ---
@@ -21,12 +22,13 @@
 
 1. [Descripción del proyecto](#-descripción-del-proyecto)
 2. [Integrantes](#-integrantes)
-3. [Funcionalidades implementadas](#-funcionalidades-implementadas)
-4. [Tecnologías](#-tecnologías)
-5. [Arquitectura y estructura](#-arquitectura-y-estructura)
-6. [Pasos para ejecutar](#-pasos-para-ejecutar)
-7. [Datos de prueba](#-datos-de-prueba)
-8. [Trabajo colaborativo](#-trabajo-colaborativo)
+3. [Funcionalidades](#-funcionalidades)
+4. [Endpoints utilizados](#-endpoints-utilizados)
+5. [Pasos para ejecutar](#️-pasos-para-ejecutar)
+6. [APK firmado y llave .jks](#-apk-firmado-y-llave-jks)
+7. [Pruebas unitarias y cobertura](#-pruebas-unitarias-y-cobertura)
+8. [Arquitectura](#-arquitectura)
+9. [Trabajo colaborativo](#-trabajo-colaborativo)
 
 ---
 
@@ -36,14 +38,14 @@
 
 Hoy falta un canal claro y centralizado para comunicar su impacto social, lo que dificulta que el interés de un potencial colaborador se convierta en una acción real (donaciones, voluntariado, alianzas, compra de productos o capacitaciones).
 
-**Alba Lab** es una app Android que busca resolver esto:
+**Alba Lab** es una app Android que resuelve esto:
 
 - 💜 Da a conocer el propósito, programas e historia de la corporación.
 - 🛍️ Muestra el catálogo de productos hechos por jóvenes y adultos de Alba Lab.
-- 🤝 Facilita que personas y empresas manifiesten su interés en colaborar mediante un formulario.
-- 👤 Permite a los socios crear una cuenta y revisar las solicitudes que han enviado.
+- 🤝 Permite a personas y empresas enviar una solicitud de colaboración, que se guarda en un microservicio propio.
+- 👤 Permite a los socios crear su cuenta y gestionar su perfil y sus solicitudes.
 
-> Proyecto desarrollado para la **Evaluación Parcial 2** de la asignatura **DSY1105 – Desarrollo de Aplicaciones Móviles** (Duoc UC). Es un Producto Mínimo Viable (MVP) con fines académicos.
+> Proyecto desarrollado para la **Evaluación Parcial 4** de **DSY1105 – Desarrollo de Aplicaciones Móviles** (Duoc UC), como continuación de la Evaluación Parcial 2. Todos los datos son ficticios.
 
 ---
 
@@ -51,148 +53,214 @@ Hoy falta un canal claro y centralizado para comunicar su impacto social, lo que
 
 **Grupo 6**
 
-| Integrante | GitHub |
-|---|---|
-| Amira Rice | [@Amirosaa](https://github.com/Amirosaa) |
-| Daniela Beltrán | [@Dabelca](https://github.com/Dabelca) |
+| Integrante | GitHub | Responsabilidades |
+|---|---|---|
+| Amira Rice | [@Amirosaa](https://github.com/Amirosaa) | Base de Retrofit, microservicio **ms-socios**, Perfil (CRUD de socios), tests de `LoginViewModel` y `SocioRepository`, cobertura y APK firmado |
+| Daniela Beltrán | [@Dabelca](https://github.com/Dabelca) | Microservicio **ms-solicitudes**, Colaborar y Mis solicitudes (CRUD de solicitudes), API externa **mindicador.cl**, tests de `ContactoViewModel`, `TiendaViewModel`, `ContactoRepository` e `IndicadoresRepository`, Trello y README |
 
 ---
 
-## ✨ Funcionalidades implementadas
+## ✨ Funcionalidades
 
-La app se navega con una **barra inferior** de 5 secciones:
+La app se navega con una **barra inferior** de 5 secciones.
 
 ### 🏠 Inicio
-- Logo de CORPALIV, imagen principal y texto con el propósito de la corporación.
-- Botón **"Quiero ayudar"** que lleva directamente a la sección Colaborar.
+- Propósito de la corporación y botón **"Quiero ayudar"** que lleva a Colaborar.
 
 ### ℹ️ Nosotros
-- Misión, visión y valores de la corporación.
-- Información de la Escuela Jan Van Dijk, los programas de inclusión laboral y la historia de CORPALIV.
-- Tarjetas que se **expanden con animación** al tocarlas.
+- Misión, visión, valores, Escuela Jan Van Dijk, programas de inclusión laboral e historia, en tarjetas que se **expanden con animación**.
 
 ### 🛍️ Tienda
-- Catálogo de productos con imagen, descripción y precio.
-- **Filtro por tipo** de producto.
-- 🔊 **Lectura en voz alta** de cada producto (Text-to-Speech).
-- 📤 **Compartir** un producto con otras apps.
-- Animación de entrada en las tarjetas.
+- Catálogo con imagen, descripción y precio, y **filtro por tipo**.
+- 🔊 **Lectura en voz alta** de cada producto (Text-to-Speech) y 📤 **compartir** un producto.
 
 ### ❤️ Colaborar
-- Información para donar como **persona** o como **empresa**.
-- **Formulario de contacto** con tipo de colaborador, forma de colaboración, nombre, correo y mensaje.
-- Validación por campo con ícono y mensaje de error.
-- Las solicitudes se guardan en la base de datos local (Room).
+- Información para donar como **persona** o **empresa**.
+- 💱 **Valores de la UF y la UTM del día** (API externa mindicador.cl) en la sección de empresas, como referencia para los beneficios de las leyes de donación.
+- **Formulario de colaboración** validado por campo (ícono y mensaje de error) que se envía al microservicio **ms-solicitudes**.
+- Mensaje de error si el microservicio no responde.
 
 ### 👤 Perfil
-- **Inicio de sesión** de socios con correo y contraseña validados contra Room.
-- **Registro** de nuevos socios con validación de cada campo y confirmación de contraseña.
-- Mensaje animado al registrarse con éxito.
-- **Mis solicitudes**: lista de los formularios enviados con el correo del socio.
-- 📷 **Foto de perfil** desde la **cámara** o la **galería**.
-- Cerrar sesión.
+- **Registro, inicio de sesión, edición de perfil y eliminación de cuenta** contra el microservicio **ms-socios**.
+- **Mis solicitudes**: lista las solicitudes del socio desde **ms-solicitudes**, con opción de **editar** el mensaje y **eliminar** (con confirmación).
+- 📷 Foto de perfil desde la **cámara** (con permiso en tiempo de ejecución) o la **galería**.
 
-### 📱 Recursos nativos utilizados
+### 📱 Recursos nativos
 
-| Recurso | Dónde se usa | Detalle |
+| Recurso | Dónde | Detalle |
 |---|---|---|
-| 📷 Cámara | Perfil | `TakePicture()` + permiso `CAMERA` solicitado en tiempo de ejecución + `FileProvider` |
-| 🖼️ Galería | Perfil | `GetContent()` para elegir una imagen |
-| 🔊 Text-to-Speech | Tienda | Lee en voz alta el nombre y descripción del producto |
-| 📤 Compartir | Tienda | `Intent.ACTION_SEND` para compartir un producto |
-
-### 🎞️ Animaciones
-
-- Transición con *fade* entre pantallas.
-- Cambio de color animado en los botones de donación (`animateColorAsState`).
-- Mensajes de error y de éxito que aparecen con `AnimatedVisibility`.
-- Tarjetas que se expanden en Nosotros (`animateContentSize`).
-- Entrada animada de los productos en la Tienda.
+| 📷 Cámara | Perfil | `TakePicture()` + permiso `CAMERA` en tiempo de ejecución + `FileProvider` |
+| 🖼️ Galería | Perfil | `GetContent()` |
+| 🔊 Text-to-Speech | Tienda | Lee el nombre, descripción y precio del producto |
+| 📤 Compartir | Tienda | `Intent.ACTION_SEND` |
 
 ---
 
-## 🛠️ Tecnologías
+## 🔌 Endpoints utilizados
 
-| Tecnología | Uso |
-|---|---|
-| **Kotlin** | Lenguaje principal |
-| **Jetpack Compose** | Construcción de la interfaz |
-| **Material Design 3** | Componentes visuales y paleta de colores |
-| **Navigation Compose** | Navegación entre pantallas |
-| **ViewModel + StateFlow** | Manejo de estado (MVVM) |
-| **Room** | Base de datos local (socios y solicitudes) |
-| **Coil** | Mostrar la foto de perfil |
-| **Git + GitHub** | Control de versiones |
-| **Jira** | Planificación y distribución de tareas |
+Repositorio de los microservicios: **CORPALIV-BACKEND**(https://github.com/Amirosaa/CORPALIV-BACKEND.git)
 
----
+### Microservicio ms-socios — puerto 8080
 
-## 🧱 Arquitectura y estructura
+Spring Boot + JPA + MySQL. Base de datos: `corpaliv_socios`. Entidad `Socio`: id, nombre, correo, clave.
 
-El proyecto sigue el patrón **MVVM** (Model – View – ViewModel). La lógica y validaciones están en los ViewModels, separadas de las pantallas.
+| Método | Endpoint | Descripción |
+|---|---|---|
+| POST | `/api/socios` | Registra un socio |
+| POST | `/api/socios/login` | Inicia sesión (401 si las credenciales son incorrectas) |
+| GET | `/api/socios/{id}` | Obtiene un socio por id |
+| PUT | `/api/socios/{id}` | Edita el perfil del socio |
+| DELETE | `/api/socios/{id}` | Elimina la cuenta |
 
-```
-app/src/main/java/com/duoc/albalab/
-├── data/            # Base de datos Room y DAOs
-├── model/           # Entidades y estados de la UI
-├── repository/      # Intermediario entre ViewModel y base de datos
-├── viewmodel/       # Lógica, estado y validaciones
-├── navigation/      # Rutas y navegación con barra inferior
-├── ui/
-│   ├── inicio/      # Pantalla de inicio
-│   ├── nosotros/    # Pantalla Nosotros
-│   ├── tienda/      # Catálogo de productos
-│   ├── colaborar/   # Donaciones y formulario de contacto
-│   ├── perfil/      # Login, registro, solicitudes y foto
-│   ├── components/  # Componentes reutilizables
-│   └── theme/       # Colores, tipografía y tema
-└── MainActivity.kt
-```
+### Microservicio ms-solicitudes — puerto 8081
+
+Spring Boot + JPA + MySQL. Base de datos: `corpaliv_solicitudes`. Entidad `Solicitud`: id, nombre, correo, tipoColaborador, formaColaboracion, mensaje, estado.
+
+| Método | Endpoint | Descripción |
+|---|---|---|
+| POST | `/api/solicitudes` | Crea una solicitud de colaboración (queda con estado "Enviada") |
+| GET | `/api/solicitudes?correo={correo}` | Lista las solicitudes de un correo ("Mis solicitudes") |
+| GET | `/api/solicitudes/{id}` | Obtiene una solicitud por id (404 si no existe) |
+| PUT | `/api/solicitudes/{id}` | Actualiza una solicitud |
+| DELETE | `/api/solicitudes/{id}` | Elimina una solicitud (204 No Content) |
+
+### API externa: mindicador.cl
+
+| Método | Endpoint | Uso en la app |
+|---|---|---|
+| GET | `https://mindicador.cl/api` | Muestra la UF y la UTM del día en Colaborar → Empresas |
+
+Se consume con Retrofit en un repositorio propio (`IndicadoresRepository` + `IndicadoresInstance`), separado de los microservicios. Si no hay conexión, la app muestra un aviso con opción de reintentar.
+
+### ¿Cómo se conecta la app?
+
+Cada servicio tiene su propia instancia de Retrofit:
+
+| Instancia | URL base | Servicio |
+|---|---|---|
+| `RetrofitInstance` | `http://10.0.2.2:8080/` | ms-socios |
+| `SolicitudInstance` | `http://10.0.2.2:8081/` | ms-solicitudes |
+| `IndicadoresInstance` | `https://mindicador.cl/` | API externa |
+
+`10.0.2.2` es la dirección con la que el **emulador** llega al computador. El manifiesto incluye el permiso `INTERNET` y `usesCleartextTraffic="true"` para permitir HTTP hacia los microservicios locales.
 
 ---
 
 ## ▶️ Pasos para ejecutar
 
 ### Requisitos
-- **Android Studio** en su versión más reciente.
-- Emulador o dispositivo Android con **Android 7.0 (API 24)** o superior.
-- Conexión a internet para descargar las dependencias la primera vez.
+- Android Studio (versión reciente) y emulador con **Android 7.0 (API 24)** o superior.
+- IntelliJ IDEA (u otro IDE) con **Java 21**.
+- **MySQL** encendido (Laragon, XAMPP o similar).
 
-### Instalación
+### 1. Microservicios
 
-1. **Clonar el repositorio**
+1. Clonar el repositorio **CORPALIV-BACKEND**.
+2. Encender MySQL. Las bases `corpaliv_socios` y `corpaliv_solicitudes` se crean solas al arrancar (`createDatabaseIfNotExist=true`).
+3. Abrir **cada microservicio por separado** (`ms-socios` y `ms-solicitudes`) y ejecutar su clase `...Application`.
+4. Comprobar en la consola: `Tomcat started on port 8080` (ms-socios) y `port 8081` (ms-solicitudes).
+
+> 🔑 Ambos usan el usuario `root` sin contraseña. Si tu MySQL tiene contraseña: en ms-solicitudes define la variable de entorno `DB_PASSWORD`, y en ms-socios `SPRING_DATASOURCE_PASSWORD`, en la configuración de ejecución del IDE.
+
+### 2. App móvil
+
+1. Clonar el repositorio:
    ```bash
    git clone https://github.com/Dabelca/CORPALIV-APP.git
    ```
-2. **Abrir el proyecto** en Android Studio: `File > Open` y seleccionar la carpeta `CORPALIV-APP`.
-3. **Sincronizar Gradle**: esperar a que termine o presionar *Sync Project with Gradle Files* 🐘.
-4. **Elegir un dispositivo**: un emulador desde *Device Manager* o un teléfono conectado por USB con la depuración USB activada.
-5. **Ejecutar** la app con el botón ▶️ *Run 'app'*.
+2. Abrir la carpeta en Android Studio y esperar el **Gradle Sync** 🐘.
+3. Ejecutar en un emulador con ▶️ *Run 'app'*.
 
-> 💡 Si la app ya estaba instalada con una versión anterior de la base de datos y el login de prueba no funciona, borra los datos de la app (`Ajustes > Apps > Alba Lab > Almacenamiento > Borrar datos`) o desinstálala y vuelve a ejecutar.
+### 3. Probar el flujo completo
+
+1. **Perfil** → crear una cuenta e iniciar sesión.
+2. **Colaborar** → enviar una solicitud **con el mismo correo** de la cuenta.
+3. **Perfil** → *Mis solicitudes*: aparece la solicitud; se puede **editar** y **eliminar**.
+4. **Colaborar** → **Empresas**: ver la UF y la UTM del día.
 
 ---
 
-## 🧪 Datos de prueba
+## 🔏 APK firmado y llave .jks
 
-Al crearse la base de datos se agrega un socio de prueba:
+- **APK firmado:** ⚠️ *(ruta del APK en el repositorio, por ejemplo `app/release/app-release.apk`)*
+- **Llave:** `app/albalab.jks` (alias `albalab`)
+- **Configuración:** bloque `signingConfigs` en `app/build.gradle.kts`, aplicado al build `release` (con R8 activado).
 
-| Correo | Contraseña |
+### Cómo se generó
+1. **Build → Generate Signed App Bundle or APK → APK**.
+2. Se creó la llave `albalab.jks` (*Create new…*) con su alias y contraseña, válida por 25 años.
+3. Se agregó `signingConfigs { create("release") { ... } }` en `app/build.gradle.kts` y se asignó al `buildType` `release`.
+4. Se compiló el release firmado y se probó el APK instalado.
+
+
+<!-- ![APK firmado](docs/apk-firmado.png) -->
+
+
+<!-- ![Llave jks](docs/jks.png) -->
+
+---
+
+## 🧪 Pruebas unitarias y cobertura
+
+Herramientas: **Kotest** (`StringSpec`, `shouldBe`) + **MockK** + **kotlinx-coroutines-test**. Se mockean las APIs de Retrofit y los repositorios, para probar la lógica sin depender de los microservicios ni de internet.
+
+| Clase probada | Qué se valida |
 |---|---|
-| `socio@prueba.cl` | `123456` |
+| `LoginViewModel` | Login correcto e incorrecto, validaciones, registro, edición y eliminación de cuenta, carga de solicitudes |
+| `SocioRepository` | Llamadas a ms-socios (login, registro, actualizar, eliminar) |
+| `ContactoViewModel` | Validaciones del formulario, envío exitoso, error del microservicio y carga de UF/UTM |
+| `ContactoRepository` | Crear, listar por correo, actualizar y eliminar solicitudes |
+| `IndicadoresRepository` | Obtener UF y UTM de la API externa |
+| `TiendaViewModel` | Catálogo inicial, tipos sin repetir y filtro por tipo |
 
-**Para probar "Mis solicitudes":** inicia sesión, envía un formulario en *Colaborar* usando el mismo correo (`socio@prueba.cl`) y vuelve a *Perfil*.
+Ejecutar las pruebas:
 
-> 🔒 Todos los datos de prueba son ficticios, tal como lo exige el caso.
+```bash
+./gradlew testDebugUnitTest
+```
+
+Generar el reporte de cobertura (`app/build/reports/coverage/test/debug/index.html`):
+
+```bash
+./gradlew createDebugUnitTestCoverageReport
+```
+
+<!-- ![Cobertura](docs/cobertura.png) -->
+
+---
+
+## 🧱 Arquitectura
+
+**App móvil — MVVM.** La lógica y validaciones están en los ViewModels; los repositorios se reciben por constructor para poder reemplazarlos por mocks en los tests.
+
+```
+app/src/main/java/com/duoc/albalab/
+├── data/remote/     # Interfaces e instancias de Retrofit (microservicios y API externa)
+├── model/           # Modelos de datos y estados de la UI
+├── repository/      # Intermediarios entre ViewModel y servicios
+├── viewmodel/       # Lógica, estado (StateFlow) y validaciones
+├── navigation/      # Rutas y barra de navegación
+└── ui/              # Pantallas (inicio, nosotros, tienda, colaborar, perfil) y tema
+```
+
+**Microservicios — capas.** Cada uno es un proyecto Spring Boot independiente, con su propio puerto y base de datos.
+
+```
+com.duoc.<microservicio>/
+├── model/        # Entidad JPA (@Entity)
+├── repository/   # JpaRepository (consultas)
+└── controller/   # @RestController con los endpoints
+```
 
 ---
 
 ## 🤝 Trabajo colaborativo
 
-- Cada funcionalidad se desarrolla en su propia rama (`feature/...`) y se integra a `main` mediante **Pull Requests**.
-- La planificación y distribución de tareas se realiza en **Jira**, con una tarjeta por cada requisito asignada a una integrante.
+- Cada funcionalidad se desarrolla en su propia rama (`feature/...`, `fix/...`, `test/...`) y se integra a `main` mediante **Pull Requests**.
+- La planificación se realiza en **Trello**, con las listas *Pendiente*, *En progreso* y *Hecho*, y una tarjeta por tarea asignada a cada integrante.
 
-📋 **Tablero Jira:** [Ver tablero del proyecto](https://guia-appmoviles.atlassian.net/jira/software/projects/KAN/boards/1?filter=&groupBy=none&atlOrigin=eyJpIjoiY2ZhMzMwZTE5OTEyNDIxMGExM2FhYTFkOGI2NzJjMGEiLCJwIjoiaiJ9)
+
+<!-- ![Trello](docs/trello.png) -->
 
 ---
 
