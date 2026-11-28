@@ -182,21 +182,23 @@ Cada servicio tiene su propia instancia de Retrofit:
 
 ## 🔏 APK firmado y llave .jks
 
-- **APK firmado:** ⚠️ *(ruta del APK en el repositorio, por ejemplo `app/release/app-release.apk`)*
+- **APK firmado:** `app/release/app-release.apk`
 - **Llave:** `app/albalab.jks` (alias `albalab`)
 - **Configuración:** bloque `signingConfigs` en `app/build.gradle.kts`, aplicado al build `release` (con R8 activado).
 
 ### Cómo se generó
-1. **Build → Generate Signed App Bundle or APK → APK**.
-2. Se creó la llave `albalab.jks` (*Create new…*) con su alias y contraseña, válida por 25 años.
-3. Se agregó `signingConfigs { create("release") { ... } }` en `app/build.gradle.kts` y se asignó al `buildType` `release`.
-4. Se compiló el release firmado y se probó el APK instalado.
+1. Se creó la llave `albalab.jks` con `keytool`, con su alias y contraseña.
+2. Se agregó `signingConfigs { create("release") { ... } }` en `app/build.gradle.kts` y se asignó al `buildType` `release`.
+3. Se compiló el release firmado con `.\gradlew assembleRelease`.
+4. Se verificó la firma con `apksigner verify --print-certs` y se probó el APK instalado.
 
+**Verificación de la firma del APK:**
 
-<!-- ![APK firmado](docs/apk-firmado.png) -->
+![APK firmado](docs/apk-firmado.png)
 
+**APK generado y llave .jks en el proyecto:**
 
-<!-- ![Llave jks](docs/jks.png) -->
+![Llave jks](docs/jks.png)
 
 ---
 
