@@ -4,10 +4,10 @@ import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.duoc.albalab.data.AppDatabase
 import com.duoc.albalab.model.LoginErrores
 import com.duoc.albalab.model.LoginUiState
 import com.duoc.albalab.model.Socio
+import com.duoc.albalab.model.Solicitud
 import com.duoc.albalab.repository.ContactoRepository
 import com.duoc.albalab.repository.SocioRepository
 import kotlinx.coroutines.delay
@@ -21,8 +21,7 @@ import kotlinx.coroutines.launch
 class LoginViewModel @JvmOverloads constructor(
     application: Application,
     private val repository: SocioRepository = SocioRepository(),
-    private val contactoRepository: ContactoRepository =
-        ContactoRepository(AppDatabase.obtener(application).contactoDao())
+    private val contactoRepository: ContactoRepository = ContactoRepository()
 ) : AndroidViewModel(application) {
 
     private val formatoCorreo = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
@@ -181,13 +180,41 @@ class LoginViewModel @JvmOverloads constructor(
         }
     }
 
+
     // busca en la bd las solicitudes enviadas con el correo del socio
     fun cargarSolicitudes() {
         val actual = _estado.value
         if (actual.nombreSocio != null) {
             viewModelScope.launch {
-                val lista = contactoRepository.obtenerPorCorreo(actual.correo)
-                _estado.update { it.copy(solicitudes = lista) }
+                try {
+                    val lista = contactoRepository.obtenerPorCorreo(actual.correo)
+                    _estado.update { it.copy(solicitudes = lista) }
+                } catch (e: Exception) {
+                    _estado.update { it.copy(solicitudes = emptyList()) }
+                }
+            }
+        }
+    }
+
+    fun editarSolicitud(solicitud: Solicitud, nuevoMensaje: String) {
+        val id = solicitud.id ?: return
+        viewModelScope.launch {
+            try {
+                contactoRepository.actualizar(id, solicitud.copy(mensaje = nuevoMensaje))
+                cargarSolicitudes()
+            } catch (e: Exception) {
+                println("Error al editar solicitud: ${e.localizedMessage}")
+            }
+        }
+    }
+    fun eliminarSolicitud(solicitud: Solicitud) {
+        val id = solicitud.id ?: return
+        viewModelScope.launch {
+            try {
+                contactoRepository.eliminar(id)
+                cargarSolicitudes()
+            } catch (e: Exception) {
+                println("Error al eliminar solicitud: ${e.localizedMessage}")
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.duoc.albalab.model
 
 import android.net.Uri
+import com.duoc.albalab.model.Solicitud
 
 // estado del form de login y registro
 data class LoginUiState(
@@ -13,7 +14,7 @@ data class LoginUiState(
     val nombreSocio: String? = null, // null = no ha iniciado sesion
     val idSocio: Int? = null,
     val editando: Boolean = false,
-    val solicitudes: List<Contacto> = emptyList(), // solicitudes enviadas por el socio
+    val solicitudes: List<Solicitud> = emptyList(), // solicitudes enviadas por el socio
     val fotoPerfil: Uri? = null, // null = sin foto
     val errores: LoginErrores = LoginErrores()
 )

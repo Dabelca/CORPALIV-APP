@@ -268,6 +268,12 @@ fun PantallaColaborar(viewModel: ContactoViewModel = viewModel()) {
                 color = MaterialTheme.colorScheme.primary
             )
         }
+        if (estado.errorEnvio) {
+            Text(
+                text = "No pudimos enviar tu solicitud. Intenta de nuevo.",
+                color = MaterialTheme.colorScheme.error
+            )
+        }
     }
 }
 
