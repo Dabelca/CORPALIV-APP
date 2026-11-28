@@ -2,7 +2,6 @@
 package com.duoc.albalab.viewmodel
 
 import android.app.Application
-import android.util.Patterns
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.duoc.albalab.data.remote.IndicadoresInstance
@@ -22,6 +21,8 @@ class ContactoViewModel @JvmOverloads constructor(
     private val repository: ContactoRepository = ContactoRepository(),
     private val indicadorRepository: IndicadoresRepository = IndicadoresRepository(IndicadoresInstance.api)
 ) : AndroidViewModel(application) {
+
+    private val formatoCorreo = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
 
     private val _estado = MutableStateFlow(ContactoUiState())
     val estado: StateFlow<ContactoUiState> = _estado
@@ -96,7 +97,7 @@ class ContactoViewModel @JvmOverloads constructor(
             nombre = if (actual.nombre.isBlank()) "Campo obligatorio" else null,
 
             correo = if (actual.correo.isBlank()) "Campo obligatorio"
-            else if (!Patterns.EMAIL_ADDRESS.matcher(actual.correo).matches())
+            else if (!formatoCorreo.matches(actual.correo))
                 "Correo inválido"
             else null,
 
@@ -121,7 +122,7 @@ class ContactoViewModel @JvmOverloads constructor(
         return !hayErrores
     }
 
-    // si el formulario es valido lo guarda en la bd
+    // si el formulario es valido lo envia al microservicio
     fun enviar() {
         if (validarFormulario()) {
             val actual = _estado.value
@@ -148,7 +149,7 @@ class ContactoViewModel @JvmOverloads constructor(
                         )
                     }
                 } catch (e: Exception) {
-                    android.util.Log.e("Solicitudes", "Error al enviar", e)
+                    println("Error al enviar: ${e.localizedMessage}")
                     _estado.update {
                         it.copy(
                             guardando = false,
